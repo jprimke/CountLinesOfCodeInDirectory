@@ -2,27 +2,51 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 
-namespace CalcLinesOfCode
+namespace CountLinesOfCodeInDirectory
 {
     class MainClass
     {
         public static void Main(string[] args)
         {
-            new MainClass().Run();
+            if (args.Length == 1)
+            {
+                new MainClass().Run(args[0]);
+            }
+            else
+            {
+                Console.WriteLine($"usage: {Assembly.GetEntryAssembly().GetName().Name} dirpath");
+            }
+#if DEBUG
+            Console.ReadLine();
+#endif
         }
 
-        void Run()
+        void Run(string dirPath)
         {
-            var dirPath = @"/users/jprimke/Projekte/";
-            var regex = new Regex(@"/(\.git|\$tf|\.vs|packages|bin|obj)/|\.((.*-arc)|dsk|zip|exe|com|obj|dll|msi|gif|ico|png|jpg|pdb|bak|snk|diagram|(res|rtf|doc|xls|ppt)x?)$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+            var os = Environment.OSVersion;
+            var dirSep = '\\';
+            var dirSepRegex = @"\\";
+
+            if (os.Platform == PlatformID.MacOSX || os.Platform == PlatformID.Unix)
+            {
+                dirSep = '/';
+                dirSepRegex = "/";
+            }
+            var regexPattern = $@"{dirSepRegex}(\.git|\$tf[0-9]*|\.vs|packages|bin|obj){dirSepRegex}|\.((.*-arc)|dsk|7z|zip|exe|com|obj|dll|msi|gif|ico|png|jpg|pdb|bak|snk|diagram|(res|rtf|doc|xls|ppt)x?)$";
+
+            if (dirPath[dirPath.Length - 1] != dirSep)
+                dirPath = dirPath + dirSep;
+
+            var regex = new Regex(regexPattern, RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
             var watch = DateTime.Now;
 
             var files = Directory.EnumerateFiles(dirPath, "*.*", SearchOption.AllDirectories).Where(fileName => !regex.IsMatch(fileName)).Select(fileName =>
                 {
-                    var firstNewPos = fileName.IndexOf('/', dirPath.Length) - dirPath.Length;
+                    var firstNewPos = fileName.IndexOf(dirSep, dirPath.Length) - (dirPath.Length);
                     var projectName = "";
                     if (firstNewPos > 0)
                     {

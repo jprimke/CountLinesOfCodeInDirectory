@@ -1,4 +1,8 @@
 2017-01-27  Jörg Primke  <jprimke@primsoft.net>
 
+	* Program.cs: Refactoring
+
+2017-01-27  Jörg Primke  <jprimke@primsoft.net>
+
 	* Program.cs: add Dump for single item
 

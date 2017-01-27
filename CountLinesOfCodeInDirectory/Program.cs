@@ -9,6 +9,11 @@ namespace CountLinesOfCodeInDirectory
 {
     class MainClass
     {
+        private readonly OperatingSystem operatingSystem = Environment.OSVersion;
+        private readonly char dirSep = '\\';
+        private readonly string dirSepRegex = @"\\";
+        private readonly Regex regex;
+
         public static void Main(string[] args)
         {
             if (args.Length == 1)
@@ -24,23 +29,22 @@ namespace CountLinesOfCodeInDirectory
 #endif
         }
 
-        void Run(string dirPath)
+        public MainClass()
         {
-            var os = Environment.OSVersion;
-            var dirSep = '\\';
-            var dirSepRegex = @"\\";
-
-            if (os.Platform == PlatformID.MacOSX || os.Platform == PlatformID.Unix)
+            if (operatingSystem.Platform == PlatformID.MacOSX || operatingSystem.Platform == PlatformID.Unix)
             {
                 dirSep = '/';
                 dirSepRegex = "/";
             }
-            var regexPattern = $@"{dirSepRegex}(\.git|\$tf[0-9]*|\.vs|packages|bin|obj){dirSepRegex}|\.((.*-arc)|dsk|7z|zip|exe|com|obj|dll|msi|gif|ico|png|jpg|pdb|bak|snk|diagram|(res|rtf|doc|xls|ppt)x?)$";
 
+            var regexPattern = $@"{dirSepRegex}(\.git|\$tf[0-9]*|\.vs|packages|bin|obj){dirSepRegex}|\.((.*-arc)|dsk|7z|zip|exe|com|obj|dll|msi|gif|ico|png|jpg|pdb|bak|snk|diagram|(res|rtf|doc|xls|ppt)x?)$";
+            regex = new Regex(regexPattern, RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        }
+
+        void Run(string dirPath)
+        {
             if (dirPath[dirPath.Length - 1] != dirSep)
                 dirPath = dirPath + dirSep;
-
-            var regex = new Regex(regexPattern, RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
             var watch = DateTime.Now;
 
@@ -62,13 +66,29 @@ namespace CountLinesOfCodeInDirectory
                         linesOfCode = 0;
                     }
 
-                    return new { ProjectName = projectName, FileName = fileName, LinesOfCode = linesOfCode };
+                    var extension = Path.GetExtension(fileName).Substring(1);
+
+                    return new { ProjectName = projectName, FileType = extension, FileName = fileName, LinesOfCode = linesOfCode };
                 }).ToList();
 
             files.OrderBy(f => f.ProjectName).Dump($"Files: {DateTime.Now - watch}", true);
 
-            files.GroupBy(f => f.ProjectName).Select(g => new { Project = g.Key, LinesOfCode = g.Sum(l => l.LinesOfCode) }).OrderBy(f => f.Project).Dump($"Projects: {DateTime.Now - watch}", true);
+            files.GroupBy(f => new { f.ProjectName, f.FileType }).Select(g => new
+            {
+                ProjectName = g.Key.ProjectName,
+                FileType = g.Key.FileType,
+                LinesOfCode = g.Sum(l => l.LinesOfCode)
+            })
+                 .OrderBy(f => f.ProjectName).ThenBy(f => f.FileType)
+                 .Dump($"Projects with type: {DateTime.Now - watch}", true);
 
+            files.GroupBy(f => f.ProjectName).Select(g => new
+            {
+                ProjectName = g.Key,
+                LinesOfCode = g.Sum(l => l.LinesOfCode)
+            })
+                 .OrderBy(f => f.ProjectName)
+                 .Dump($"Projects: {DateTime.Now - watch}", true);
         }
     }
 

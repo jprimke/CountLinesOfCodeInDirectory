@@ -1,5 +1,13 @@
 2017-01-27  Jörg Primke  <jprimke@primsoft.net>
 
+	* Program.cs: remove Dump for single item
+
+2017-01-27  Jörg Primke  <jprimke@primsoft.net>
+
+	* Program.cs: Refactoring
+
+2017-01-27  Jörg Primke  <jprimke@primsoft.net>
+
 	* Program.cs: Refactoring
 
 2017-01-27  Jörg Primke  <jprimke@primsoft.net>

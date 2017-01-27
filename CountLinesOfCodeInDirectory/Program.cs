@@ -96,5 +96,25 @@ namespace CountLinesOfCodeInDirectory
                 Console.WriteLine();
             }
         }
+
+        public static void Dump<T>(this T item, string header = null, bool inGrid = false)
+        {
+            var oldColor = Console.ForegroundColor;
+            if (!string.IsNullOrWhiteSpace(header))
+            {
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine(header);
+                Console.ForegroundColor = oldColor;
+            }
+
+            var type = typeof(T);
+            var properties = type.GetProperties();
+            foreach (var prop in properties)
+            {
+                var val = prop.GetValue(item);
+                Console.WriteLine($"{prop.Name}: {val}");
+            }
+            Console.WriteLine();
+        }
     }
 }

@@ -14,4 +14,18 @@ Global
 		{A7235FEA-FCD3-496F-905B-A04E9BE95D74}.Release|x86.ActiveCfg = Release|x86
 		{A7235FEA-FCD3-496F-905B-A04E9BE95D74}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		Policies = $0
+		$0.VersionControlPolicy = $1
+		$1.CommitMessageStyle = $2
+		$2.Indent = @\t
+		$2.LastFilePostfix = "@:\n  "
+		$1.inheritsSet = Mono
+		$0.ChangeLogPolicy = $3
+		$3.UpdateMode = ProjectRoot
+		$3.VcsIntegration = RequireEntry
+		$3.MessageStyle = $4
+		$4.LineAlign = 0
+		$3.inheritsSet = Mono
+	EndGlobalSection
 EndGlobal

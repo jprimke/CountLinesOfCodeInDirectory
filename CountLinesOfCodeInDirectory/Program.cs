@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace CountLinesOfCodeInDirectory
 {
@@ -50,18 +51,24 @@ namespace CountLinesOfCodeInDirectory
 
             List<FileInfoWithLinesOfCode> files = GetFileInfosWithLineOfCodes(dirPath).Take(100).ToList();
 
-            files.OrderBy(f => f.ProjectName).Dump($"Files: {DateTime.Now - watch}", true);
+            do
+            {
+                while (!Console.KeyAvailable)
+                {
+                    files.OrderBy(f => f.ProjectName).Dump($"Files: {DateTime.Now - watch}", true);
 
-            files.GroupBy(f => new {f.ProjectName, f.FileType})
-                 .Select(g => new {g.Key.ProjectName, g.Key.FileType, LinesOfCode = g.Sum(l => l.LinesOfCode)})
-                 .OrderBy(f => f.ProjectName)
-                 .ThenBy(f => f.FileType)
-                 .Dump($"Projects with type: {DateTime.Now - watch}", true);
+                    files.GroupBy(f => new {f.ProjectName, f.FileType})
+                         .Select(g => new {g.Key.ProjectName, g.Key.FileType, LinesOfCode = g.Sum(l => l.LinesOfCode)})
+                         .OrderBy(f => f.ProjectName)
+                         .ThenBy(f => f.FileType)
+                         .Dump($"Projects with type: {DateTime.Now - watch}", true);
 
-            files.GroupBy(f => f.ProjectName)
-                 .Select(g => new {ProjectName = g.Key, LinesOfCode = g.Sum(l => l.LinesOfCode)})
-                 .OrderBy(f => f.ProjectName)
-                 .Dump($"Projects: {DateTime.Now - watch}", true);
+                    files.GroupBy(f => f.ProjectName)
+                         .Select(g => new {ProjectName = g.Key, LinesOfCode = g.Sum(l => l.LinesOfCode)})
+                         .OrderBy(f => f.ProjectName)
+                         .Dump($"Projects: {DateTime.Now - watch}", true);
+                }
+            } while (Console.ReadKey(true).Key == ConsoleKey.Q);
         }
 
         private IEnumerable<FileInfoWithLinesOfCode> GetFileInfosWithLineOfCodes(string dirPath)
